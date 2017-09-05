@@ -59,11 +59,11 @@
 #ifndef vtkPowerCrustSurfaceReconstruction_h
 #define vtkPowerCrustSurfaceReconstruction_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
+#include "PowercrustModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkPolyData;
-class vtkPowerCrustSurfaceReconstruction : public vtkPolyDataAlgorithm
+class POWERCRUST_EXPORT vtkPowerCrustSurfaceReconstruction : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkPowerCrustSurfaceReconstruction, vtkPolyDataAlgorithm);
@@ -114,8 +114,8 @@ protected:
 
 
 private:
-  vtkPowerCrustSurfaceReconstruction(const vtkPowerCrustSurfaceReconstruction&);  // Not implemented.
-  void operator=(const vtkPowerCrustSurfaceReconstruction&);  // Not implemented.
+  vtkPowerCrustSurfaceReconstruction(const vtkPowerCrustSurfaceReconstruction&)  VTK_DELETE_FUNCTION;
+  void operator=(const vtkPowerCrustSurfaceReconstruction&)  VTK_DELETE_FUNCTION;
 };
 
 #endif
