@@ -56,19 +56,18 @@
 // .SECTION See Also
 // vtkSurfaceReconstructionFilter
 
-#ifndef __vtkPowerCrustSurfaceReconstruction_h
-#define __vtkPowerCrustSurfaceReconstruction_h
+#ifndef vtkPowerCrustSurfaceReconstruction_h
+#define vtkPowerCrustSurfaceReconstruction_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkPolyData.h"
-#include "vtkCellArray.h"
-#include "vtkPointData.h"
 
+class vtkPolyData;
 class vtkPowerCrustSurfaceReconstruction : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkPowerCrustSurfaceReconstruction, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkPowerCrustSurfaceReconstruction *New();
 
@@ -101,11 +100,11 @@ protected:
 
   // Description:
   // the main function that does the work
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   int RequestUpdateExtent(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector*);
+                          vtkInformationVector*) VTK_OVERRIDE;
   void ExecuteInformation();
 
   vtkPolyData *medial_surface;
