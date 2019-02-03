@@ -67,7 +67,7 @@ class POWERCRUST_EXPORT vtkPowerCrustSurfaceReconstruction : public vtkPolyDataA
 {
 public:
   vtkTypeMacro(vtkPowerCrustSurfaceReconstruction, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkPowerCrustSurfaceReconstruction *New();
 
@@ -100,11 +100,11 @@ protected:
 
   // Description:
   // the main function that does the work
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   int RequestUpdateExtent(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector*) VTK_OVERRIDE;
+                          vtkInformationVector*) override;
   void ExecuteInformation();
 
   vtkPolyData *medial_surface;
@@ -114,8 +114,8 @@ protected:
 
 
 private:
-  vtkPowerCrustSurfaceReconstruction(const vtkPowerCrustSurfaceReconstruction&)  VTK_DELETE_FUNCTION;
-  void operator=(const vtkPowerCrustSurfaceReconstruction&)  VTK_DELETE_FUNCTION;
+  vtkPowerCrustSurfaceReconstruction(const vtkPowerCrustSurfaceReconstruction&)  = delete;
+  void operator=(const vtkPowerCrustSurfaceReconstruction&)  = delete;
 };
 
 #endif
