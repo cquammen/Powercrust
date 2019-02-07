@@ -114,8 +114,8 @@ protected:
 
 
 private:
-  vtkPowerCrustSurfaceReconstruction(const vtkPowerCrustSurfaceReconstruction&)  = delete;
-  void operator=(const vtkPowerCrustSurfaceReconstruction&)  = delete;
+  vtkPowerCrustSurfaceReconstruction(const vtkPowerCrustSurfaceReconstruction&) = delete;
+  void operator=(const vtkPowerCrustSurfaceReconstruction&) = delete;
 };
 
 #endif
