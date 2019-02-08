@@ -291,10 +291,10 @@ void free_##X##_storage(void) {new_block_##X(0);}    \
 
 #define mod_refs(op,s)          \
 {              \
-  int i;            \
+  int iX;            \
   neighbor *mrsn;          \
               \
-  for (i=-1,mrsn=s->neigh-1;i<cdim;i++,mrsn++)  \
+  for (iX=-1,mrsn=s->neigh-1;iX<cdim;iX++,mrsn++)  \
     op##_ref(basis_s, mrsn->basis);    \
 }
 
@@ -471,7 +471,7 @@ static int messcount=0;			// EPRO set to global (local removed from warning) to 
 
 typedef point site;
 
-extern site p;          /* the current site */
+extern site pX;          /* the current site */
 
 extern Coord infinity[10];  /* point at infinity for Delaunay triang */
 
@@ -625,7 +625,7 @@ typedef struct temp {
     int vertptr[3];
     int novert;
     /* 0,1,2,3 : 3 vertices but ts->neigh[ti].vert are vertices of triangle */
-} temp;
+} tempX;
 
 typedef struct tarr {
     int tempptr[50];
@@ -983,14 +983,14 @@ struct queuenode *qend;
 int num_vtxs=0, num_faces=0;
 
 /* Data structures for poles */
-struct simplex **pole1, **pole2;  /* arrays of poles - per sample*/
+struct simplex **pole1X, **pole2X;  /* arrays of poles - per sample*/
 struct polelabel *adjlist;  /* array of additional info - per pole */
 struct plist **opplist; /* opposite pid and angle between poles - per pole */
-double* lfs_lb;  /*  array of lower bounds for lfs of each sample */
+double* lfs_lbX;  /*  array of lower bounds for lfs of each sample */
 double  est_r = 0.6;   /* estimated value of r - user input */
 
 
-int num_poles=0,num_axedgs=0,num_axfaces=0;
+int num_polesX=0,num_axedgs=0,num_axfaces=0;
 
 
 double *pole1_distance,*pole2_distance;
@@ -1004,7 +1004,7 @@ extern char *optarg;
 extern int optind;
 extern int opterr;
 extern int scount;
-extern int v1[6], v2[6], v3[6], v4[6];
+extern int v1X[6], v2X[6], v3X[6], v4X[6];
 long num_sites;
 
 // TJH: vd declared elsewhere, renamed throughout this file
@@ -1013,7 +1013,7 @@ static short vd_new = 1;
 
 short power_diagram = 0; /* 1 if power diagram */
 
-static int dim;
+static int dimX;
 static long s_num = 0; /* site number */
 
 double theta = 0.0; /* input argument - angle defining deep intersection */
@@ -1029,7 +1029,7 @@ FILE *DFILE; // just to avoid having to rewrite tons of code
 // TJH: if you ever want to see the output of powercrust as it works, uncomment the lines
 //      that contain DFILE - this used to be stderr
 
-int *rverts;
+int *rvertsX;
 
 
 int* select_random_points(int Nv) /* for orientation testing */
@@ -1054,8 +1054,8 @@ long site_numm(site p) {
     if (( vd_new || power_diagram) && p==infinity) return -1;
     if (!p) return -2;
     for (i=0; i<num_blocks; i++) {
-        if ((j=p-site_blocks[i])>=0 && j < BLOCKSIZE*dim)
-            return j/dim+BLOCKSIZE*i;
+        if ((j=p-site_blocks[i])>=0 && j < BLOCKSIZE*dimX)
+            return j/dimX+BLOCKSIZE*i;
     }
     return -3;
 }
@@ -1068,7 +1068,7 @@ site new_site (site p, long j) {
         assert(num_blocks < MAXBLOCKS);
         return(site_blocks[num_blocks++]=(site)malloc(BLOCKSIZE*site_size));
     } else
-        return p+dim;
+        return p+dimX;
 }
 
 
@@ -1134,13 +1134,13 @@ void read_bounding_box(long j)
     }
 
     for (k=0;k<3;k++) {
-        p[k] = bound[0][k];
+        pX[k] = bound[0][k];
     }
 
     for (i=1;i<8;i++) {
-        p=new_site(p,j+i);
+        pX=new_site(pX,j+i);
         for (k=0;k<3;k++) {
-            p[k] = bound[i][k];
+            pX[k] = bound[i][k];
         }
     }
     maxs[0] = bound[0][0];
@@ -1155,37 +1155,37 @@ void read_bounding_box(long j)
 site vtk_read_next_site(long j)
 {
     ASSERT(j>=0);
-    p = new_site(p,j);
+    pX = new_site(pX,j);
 
-    for(int i=0;i<dim;i++)
+    for(int i=0;i<dimX;i++)
     {
-       p[i] = (double)vtk_input->GetPoint(j)[i];
-       p[i] = floor(mult_up*p[i]+0.5);
-       mins[i] = (mins[i]<p[i]) ? mins[i] : p[i];
-       maxs[i] = (maxs[i]>p[i]) ? maxs[i] : p[i];
+       pX[i] = (double)vtk_input->GetPoint(j)[i];
+       pX[i] = floor(mult_up*pX[i]+0.5);
+       mins[i] = (mins[i]<pX[i]) ? mins[i] : pX[i];
+       maxs[i] = (maxs[i]>pX[i]) ? maxs[i] : pX[i];
     }
 
-    return p;
+    return pX;
 }
 
 // TJH: trying to replace file use
 site vtk_pole_read_next_site(long j)
 {
     ASSERT(j>=0);
-    p = new_site(p,j);
+    pX = new_site(pX,j);
 
-    for(int i=0;i<dim;i++)
+    for(int i=0;i<dimX;i++)
     {
        if(i<3)
-         p[i] = (double)vtk_medial_surface->GetPoint(j)[i];
+         pX[i] = (double)vtk_medial_surface->GetPoint(j)[i];
        else
-         p[i] = (double)vtk_medial_surface->GetPointData()->GetScalars()->GetTuple1(j);
-       p[i] = floor(mult_up*p[i]+0.5);
-       mins[i] = (mins[i]<p[i]) ? mins[i] : p[i];
-       maxs[i] = (maxs[i]>p[i]) ? maxs[i] : p[i];
+         pX[i] = (double)vtk_medial_surface->GetPointData()->GetScalars()->GetTuple1(j);
+       pX[i] = floor(mult_up*pX[i]+0.5);
+       mins[i] = (mins[i]<pX[i]) ? mins[i] : pX[i];
+       maxs[i] = (maxs[i]>pX[i]) ? maxs[i] : pX[i];
     }
 
-    return p;
+    return pX;
 }
 
 // TJH: we've bypassed the file handling, so we don't need this function
@@ -1279,7 +1279,7 @@ site get_site_offline(long i) {
 
     if (i>=num_sites) return NULL;
     else {
-        return site_blocks[i/BLOCKSIZE]+(i%BLOCKSIZE)*dim;
+        return site_blocks[i/BLOCKSIZE]+(i%BLOCKSIZE)*dimX;
     }
 }
 
@@ -1553,16 +1553,16 @@ void adapted_main()
 
         // TJH: we've replaced the old style file handling with our own vtkPolyData reading
         //read_next_site(-1);
-        dim=3;
+        dimX=3;
 
         // TJH: added this if statement
         if(DFILE)
         {
-            fprintf(DFILE,"dim=%d\n",dim);fflush(DFILE);
+            fprintf(DFILE,"dim=%d\n",dimX);fflush(DFILE);
         }
-        if (dim > MAXDIM) panic("dimension bound MAXDIM exceeded");
+        if (dimX > MAXDIM) panic("dimension bound MAXDIM exceeded");
 
-        point_size = site_size = sizeof(Coord)*dim;
+        point_size = site_size = sizeof(Coord)*dimX;
 
         // TJH: read in the points, find their bounding box, randomise their order
 
@@ -1599,12 +1599,12 @@ void adapted_main()
 
 
         /* Step 1: compute DT of input point set */
-        root = build_convex_hull(get_next_site, site_numm, dim, vd_new);
+        root = build_convex_hull(get_next_site, site_numm, dimX, vd_new);
 
         /* Step 2: Find poles */
-        pole1 = (struct simplex **) calloc(num_sites, sizeof(struct simplex *));
-        pole2 = (struct simplex **) calloc(num_sites, sizeof(struct simplex *));
-        lfs_lb = (double*) calloc(num_sites, sizeof(double));
+        pole1X = (struct simplex **) calloc(num_sites, sizeof(struct simplex *));
+        pole2X = (struct simplex **) calloc(num_sites, sizeof(struct simplex *));
+        lfs_lbX = (double*) calloc(num_sites, sizeof(double));
 
         // TJH: added this if statement
         if(DFILE)
@@ -1649,8 +1649,8 @@ void adapted_main()
         pole1_distance=(double *) malloc(num_sites*sizeof(double));
         pole2_distance=(double *) malloc(num_sites*sizeof(double));
 
-        compute_distance(pole1,num_sites-8,pole1_distance);
-        compute_distance(pole2,num_sites-8,pole2_distance);
+        compute_distance(pole1X,num_sites-8,pole1_distance);
+        compute_distance(pole2X,num_sites-8,pole2_distance);
 
 
 
@@ -1670,43 +1670,43 @@ void adapted_main()
 
             /* output poles, both to debugging file and for weighted DT */
             /* remembers sqaured radius */
-            if ((pole1[i]!=NULL)&&(pole1[i]->status != POLE_OUTPUT)) {
+            if ((pole1X[i]!=NULL)&&(pole1X[i]->status != POLE_OUTPUT)) {
                 /* if second pole is closer than we think it should be... */
-                if ((pole2[i]!=NULL) && bad &&
-                    close_pole(samp,pole2[i]->vv,lfs_lb[i])) {
+                if ((pole2X[i]!=NULL) && bad &&
+                    close_pole(samp,pole2X[i]->vv,lfs_lbX[i])) {
                     numbadpoles++;
                 }
                 else {
-                    outputPole(/* TJH POLE,SPFILE,*/pole1[i],poleid++,samp,&num_poles,pole1_distance[i]);
+                    outputPole(/* TJH POLE,SPFILE,*/pole1X[i],poleid++,samp,&num_poles,pole1_distance[i]);
                 }
             }
 
-            if ( (pole2[i]!=NULL) && (pole2[i]->status != POLE_OUTPUT)) {
+            if ( (pole2X[i]!=NULL) && (pole2X[i]->status != POLE_OUTPUT)) {
 
                 /* if pole is closer than we think it should be... */
-                if (close_pole(samp,pole2[i]->vv,lfs_lb[i])) {
+                if (close_pole(samp,pole2X[i]->vv,lfs_lbX[i])) {
                     /* remember opposite bad for late labeling */
-                    if (!bad) adjlist[pole1[i]->poleindex].bad = BAD_POLE;
+                    if (!bad) adjlist[pole1X[i]->poleindex].bad = BAD_POLE;
                     numbadpoles++;
                     continue;
                 }
 
                 /* otherwise... */
-                outputPole(/* TJH POLE,SPFILE,*/pole2[i],poleid++,samp,&num_poles,pole2_distance[i]);
+                outputPole(/* TJH POLE,SPFILE,*/pole2X[i],poleid++,samp,&num_poles,pole2_distance[i]);
             }
 
             /* keep list of opposite poles for later coloring */
-            if ((pole1[i]!=NULL)&&(pole2[i]!=NULL)&&
-                (pole1[i]->status == POLE_OUTPUT) &&
-                (pole2[i]->status == POLE_OUTPUT)) {
+            if ((pole1X[i]!=NULL)&&(pole2X[i]!=NULL)&&
+                (pole1X[i]->status == POLE_OUTPUT) &&
+                (pole2X[i]->status == POLE_OUTPUT)) {
 
                 pole_angle =
-                    computePoleAngle(pole1[i],pole2[i],samp);
+                    computePoleAngle(pole1X[i],pole2X[i],samp);
 
-                newOpposite(pole1[i]->poleindex,
-                            pole2[i]->poleindex,pole_angle);
-                newOpposite(pole2[i]->poleindex,
-                            pole1[i]->poleindex,pole_angle);
+                newOpposite(pole1X[i]->poleindex,
+                            pole2X[i]->poleindex,pole_angle);
+                newOpposite(pole2X[i]->poleindex,
+                            pole1X[i]->poleindex,pole_angle);
             }
         }
         /* TJH: we've bypassed the file handling so we don't need this bit
@@ -1775,7 +1775,7 @@ void adapted_main()
 
     power_diagram = 1;
     vd_new = 0;
-    dim = 4;
+    dimX = 4;
 
     // TJH: we've bypassed the file handling
     //INFILE = fopen("sp","r");
@@ -1800,11 +1800,11 @@ void adapted_main()
     // TJH: added this if statement
     if(DFILE)
     {
-        fprintf(DFILE,"dim=%d\n",dim); fflush(DFILE);
+        fprintf(DFILE,"dim=%d\n",dimX); fflush(DFILE);
     }
-    /* if (dim > MAXDIM) panic("dimension bound MAXDIM exceeded"); */
+    /* if (dimX > MAXDIM) panic("dimension bound MAXDIM exceeded"); */
 
-    point_size = site_size = sizeof(Coord)*dim;
+    point_size = site_size = sizeof(Coord)*dimX;
     /* save points in order read */
     // TJH: we've bypassed the file handling
     //for (num_sites=0; read_next_site(num_sites); num_sites++);
@@ -1833,7 +1833,7 @@ void adapted_main()
     get_site_n = get_site_offline;  /* returns stored points, unshuffled */
 
     /* Compute weighted DT  */
-    root = build_convex_hull(get_next_site, site_numm, dim, vd_new);
+    root = build_convex_hull(get_next_site, site_numm, dimX, vd_new);
 
     // TJH: added this if statement
     if(DFILE)
@@ -2014,10 +2014,10 @@ void adapted_main()
     free(opplist);
     free(pole1_distance);
     free(pole2_distance);
-    free(pole1);
-    free(pole2);
+    free(pole1X);
+    free(pole2X);
     free(shufmat);
-    free(lfs_lb);
+    free(lfs_lbX);
 
 
     free_hull_storage();
@@ -2166,9 +2166,9 @@ void adapted_main()
         root = build_convex_hull(get_next_site, site_numm, dim, vd_new);
 
         // Step 2: Find poles
-        pole1 = (struct simplex **) calloc(num_sites, sizeof(struct simplex *));
-        pole2 = (struct simplex **) calloc(num_sites, sizeof(struct simplex *));
-        lfs_lb = (double*) calloc(num_sites, sizeof(double));
+        pole1X = (struct simplex **) calloc(num_sites, sizeof(struct simplex *));
+        pole2X = (struct simplex **) calloc(num_sites, sizeof(struct simplex *));
+        lfs_lbX = (double*) calloc(num_sites, sizeof(double));
 
         fprintf(DFILE, "done\n"); fflush(DFILE);
 
@@ -2225,7 +2225,7 @@ void adapted_main()
             if ((pole1[i]!=NULL)&&(pole1[i]->status != POLE_OUTPUT)) {
                 // if second pole is closer than we think it should be...
                 if ((pole2[i]!=NULL) && bad &&
-                    close_pole(samp,pole2[i]->vv,lfs_lb[i])) {
+                    close_pole(samp,pole2[i]->vv,lfs_lbX[i])) {
                     numbadpoles++;
                 }
                 else {
@@ -2236,7 +2236,7 @@ void adapted_main()
             if ( (pole2[i]!=NULL) && (pole2[i]->status != POLE_OUTPUT)) {
 
                 // if pole is closer than we think it should be...
-                if (close_pole(samp,pole2[i]->vv,lfs_lb[i])) {
+                if (close_pole(samp,pole2[i]->vv,lfs_lbX[i])) {
                     // remember opposite bad for late labeling
                     if (!bad) adjlist[pole1[i]->poleindex].bad = BAD_POLE;
                     numbadpoles++;
@@ -2585,12 +2585,12 @@ extern void tetorthocenter(double a[], double b[], double c[], double d[],
 
 /* some new variables */
 
-extern int num_poles,num_axedgs,num_axfaces;
+extern int num_polesX,num_axedgs,num_axfaces;
 
-int v1[6]={0,0,0,1,1,2};
-int v2[6]={1,2,3,2,3,3};
-int v3[6]={2,3,1,3,0,0};
-int v4[6]={3,1,2,0,2,1};
+int v1X[6]={0,0,0,1,1,2};
+int v2X[6]={1,2,3,2,3,3};
+int v3X[6]={2,3,1,3,0,0};
+int v4X[6]={3,1,2,0,2,1};
 
 
 void *compute_2d_power_vv(simplex *s, void *p) {
@@ -2717,10 +2717,10 @@ void *compute_3d_power_vv(simplex *s, void *p) {
         /* build structure for each edge, including angle of intersection */
         for (k=0;k<6;k++) {
             if (s->edgestatus[k]==FIRST_EDGE) { /* not visited edge */
-                pindex = adjlist[site_numm(v[v1[k]])].eptr;
+                pindex = adjlist[site_numm(v[v1X[k]])].eptr;
                 visited_edge = 0;
                 while (pindex!= NULL) {
-                    if (pindex->pid == site_numm(v[v2[k]])) { /* already in the list */
+                    if (pindex->pid == site_numm(v[v2X[k]])) { /* already in the list */
                         visited_edge = 1;
                         break;
                     }
@@ -2728,26 +2728,26 @@ void *compute_3d_power_vv(simplex *s, void *p) {
                 }
 
                 if (!visited_edge) {
-                    d = sqdist(ta[v1[k]],ta[v2[k]]);
-                    r1 = SQ(ta[v1[k]][0])+SQ(ta[v1[k]][1])+SQ(ta[v1[k]][2])-ta[v1[k]][3];
-                    r2 = SQ(ta[v2[k]][0])+SQ(ta[v2[k]][1])+SQ(ta[v2[k]][2])-ta[v2[k]][3];
+                    d = sqdist(ta[v1X[k]],ta[v2X[k]]);
+                    r1 = SQ(ta[v1X[k]][0])+SQ(ta[v1X[k]][1])+SQ(ta[v1X[k]][2])-ta[v1X[k]][3];
+                    r2 = SQ(ta[v2X[k]][0])+SQ(ta[v2X[k]][1])+SQ(ta[v2X[k]][2])-ta[v2X[k]][3];
                     e = 2 * sqrt(r1) * sqrt(r2);
 
                     newplist = (struct edgesimp *) malloc(sizeof(struct edgesimp));
                     newplist->simp = s;
                     newplist->kth = k;
                     newplist->angle = (r1+r2-d)/e;
-                    newplist->pid = site_numm(v[v1[k]]);
-                    newplist->next = adjlist[site_numm(v[v2[k]])].eptr;
-                    adjlist[site_numm(v[v2[k]])].eptr = newplist;
+                    newplist->pid = site_numm(v[v1X[k]]);
+                    newplist->next = adjlist[site_numm(v[v2X[k]])].eptr;
+                    adjlist[site_numm(v[v2X[k]])].eptr = newplist;
 
                     newplist = (struct edgesimp *) malloc(sizeof(struct edgesimp));
                     newplist->simp = s;
                     newplist->kth = k;
                     newplist->angle = (r1+r2-d)/e;
-                    newplist->pid = site_numm(v[v2[k]]);
-                    newplist->next = adjlist[site_numm(v[v1[k]])].eptr;
-                    adjlist[site_numm(v[v1[k]])].eptr = newplist;
+                    newplist->pid = site_numm(v[v2X[k]]);
+                    newplist->next = adjlist[site_numm(v[v1X[k]])].eptr;
+                    adjlist[site_numm(v[v1X[k]])].eptr = newplist;
 
                     s->edgestatus[k] = VISITED;
                 }
@@ -2804,20 +2804,20 @@ void *compute_3d_power_edges(simplex *s, void *p) {
             if (s->edgestatus[k]==FIRST_EDGE) { /* not visited edge */
 
                 /* check the dihedral angle */
-                d = sqdist(ta[v1[k]],ta[v2[k]]);
-                r1 = SQ(ta[v1[k]][0])+SQ(ta[v1[k]][1])+
-                    SQ(ta[v1[k]][2])-ta[v1[k]][3];
-                r2 = SQ(ta[v2[k]][0])+SQ(ta[v2[k]][1])+
-                    SQ(ta[v2[k]][2])-ta[v2[k]][3];
+                d = sqdist(ta[v1X[k]],ta[v2X[k]]);
+                r1 = SQ(ta[v1X[k]][0])+SQ(ta[v1X[k]][1])+
+                    SQ(ta[v1X[k]][2])-ta[v1X[k]][3];
+                r2 = SQ(ta[v2X[k]][0])+SQ(ta[v2X[k]][1])+
+                    SQ(ta[v2X[k]][2])-ta[v2X[k]][3];
                 e = 2 * sqrt(r1) * sqrt(r2);
                 if ((d >= (r1+r2+e)) || ((d-r1-r2)/e > theta )) {
                     /* fprintf(DFILE,"%f\n",(d-r1-r2)/e);*/
                     /* edge0, edge1 are the vertices of the edge */
-                    edge0 = s->neigh[v1[k]].vert;
-                    edge1 = s->neigh[v2[k]].vert;
-                    nextv = s->neigh[v3[k]].vert;
+                    edge0 = s->neigh[v1X[k]].vert;
+                    edge1 = s->neigh[v2X[k]].vert;
+                    nextv = s->neigh[v3X[k]].vert;
                     /* nextv is the opposite vtx of the next simplex */
-                    remv = s->neigh[v4[k]].vert;
+                    remv = s->neigh[v4X[k]].vert;
                     /* remv is a vtx of the next simplex with edge0, edge1 */
                     prevv = remv;
                     /* prevv is the vtx shared by prevs and nexts besides edge0, edge1 */
@@ -2826,11 +2826,11 @@ void *compute_3d_power_edges(simplex *s, void *p) {
                     s->edgestatus[k]=POW;
 
                     /* visit the next simplex */
-                    /* print orthocenter of s->neigh[v3[k]].simp ...*/
+                    /* print orthocenter of s->neigh[v3X[k]].simp ...*/
                     prevs = s;
-                    nexts = s->neigh[v3[k]].simp;
+                    nexts = s->neigh[v3X[k]].simp;
 
-                    ns = v3[k];
+                    ns = v3X[k];
                     numedges=0;
                     while (nexts != s) {
                         if (nexts->status == CNV) {
@@ -2971,8 +2971,8 @@ void *compute_axis (simplex *s, void *p) {
 
 
 
-                point1 = v[v1[k]];
-                point2 = v[v2[k]];
+                point1 = v[v1X[k]];
+                point2 = v[v2X[k]];
                 pindex=site_numm(point1);
                 qindex=site_numm(point2);
                 if(adjlist[pindex].label==IN && adjlist[qindex].label==IN)
@@ -2983,8 +2983,8 @@ void *compute_axis (simplex *s, void *p) {
                         fprintf(AXIS,"2 %d %d \n ",pindex,qindex);*/
                     }
                     edgedata[k]=VALIDEDGE;
-                    indices[v1[k]]=pindex ;
-                    indices[v2[k]]=qindex ;
+                    indices[v1X[k]]=pindex ;
+                    indices[v2X[k]]=qindex ;
                     s->edgestatus[k]=ADDAXIS;
 
 
@@ -2998,18 +2998,18 @@ void *compute_axis (simplex *s, void *p) {
         {
 
             /* TJH: we have bypassed the file routines, so we don't need this bit
-            fprintf(AXIS,"3 %d %d %d \n",indices[v1[0]],
-                    indices[v2[1]],indices[v1[3]]);*/
+            fprintf(AXIS,"3 %d %d %d \n",indices[v1X[0]],
+                    indices[v2X[1]],indices[v1X[3]]);*/
 
             /* TJH: we have bypassed the file routines, so we don't need this bit
             fprintf(AXISFACE,"3 %d %d %d \n",indices[v1[0]],
-                    indices[v2[1]],indices[v1[3]]);*/
+                    indices[v2X[1]],indices[v1X[3]]);*/
             // TJH: instead we pipe the data straight to our vtk structure
             {
                 vtk_medial_surface->GetPolys()->InsertNextCell(3);
-                vtk_medial_surface->GetPolys()->InsertCellPoint(indices[v1[0]]);
-                vtk_medial_surface->GetPolys()->InsertCellPoint(indices[v2[1]]);
-                vtk_medial_surface->GetPolys()->InsertCellPoint(indices[v1[3]]);
+                vtk_medial_surface->GetPolys()->InsertCellPoint(indices[v1X[0]]);
+                vtk_medial_surface->GetPolys()->InsertCellPoint(indices[v2X[1]]);
+                vtk_medial_surface->GetPolys()->InsertCellPoint(indices[v1X[3]]);
             }
 
             num_axedgs++;
@@ -3019,18 +3019,18 @@ void *compute_axis (simplex *s, void *p) {
            && (edgedata[5]==VALIDEDGE))
         {
             /* TJH: we have bypassed the file routines, so we don't need this bit
-            fprintf(AXIS,"3 %d %d %d \n",indices[v1[1]],
-                    indices[v2[2]],indices[v1[5]]);*/
+            fprintf(AXIS,"3 %d %d %d \n",indices[v1X[1]],
+                    indices[v2X[2]],indices[v1X[5]]);*/
 
             /* TJH: we have bypassed the file routines, so we don't need this bit
-            fprintf(AXISFACE,"3 %d %d %d \n",indices[v1[1]],
-                    indices[v2[2]],indices[v1[5]]);*/
+            fprintf(AXISFACE,"3 %d %d %d \n",indices[v1X[1]],
+                    indices[v2X[2]],indices[v1X[5]]);*/
             // TJH: instead we pipe the data straight to our vtk structure
             {
                 vtk_medial_surface->GetPolys()->InsertNextCell(3);
-                vtk_medial_surface->GetPolys()->InsertCellPoint(indices[v1[1]]);
-                vtk_medial_surface->GetPolys()->InsertCellPoint(indices[v2[2]]);
-                vtk_medial_surface->GetPolys()->InsertCellPoint(indices[v1[5]]);
+                vtk_medial_surface->GetPolys()->InsertCellPoint(indices[v1X[1]]);
+                vtk_medial_surface->GetPolys()->InsertCellPoint(indices[v2X[2]]);
+                vtk_medial_surface->GetPolys()->InsertCellPoint(indices[v1X[5]]);
             }
 
             num_axedgs++;
@@ -3041,18 +3041,18 @@ void *compute_axis (simplex *s, void *p) {
            && (edgedata[4]==VALIDEDGE))
         {
             /* TJH: we have bypassed the file routines, so we don't need this bit
-            fprintf(AXIS,"3 %d %d %d \n",indices[v1[0]],
-                    indices[v2[2]],indices[v1[4]]);*/
+            fprintf(AXIS,"3 %d %d %d \n",indices[v1X[0]],
+                    indices[v2X[2]],indices[v1X[4]]);*/
 
             /* TJH: we have bypassed the file routines, so we don't need this bit
-            fprintf(AXISFACE,"3 %d %d %d \n",indices[v1[0]],
-                    indices[v2[2]],indices[v1[4]]);*/
+            fprintf(AXISFACE,"3 %d %d %d \n",indices[v1X[0]],
+                    indices[v2X[2]],indices[v1X[4]]);*/
             // TJH: instead we pipe the data straight to our vtk structure
             {
                 vtk_medial_surface->GetPolys()->InsertNextCell(3);
-                vtk_medial_surface->GetPolys()->InsertCellPoint(indices[v1[0]]);
-                vtk_medial_surface->GetPolys()->InsertCellPoint(indices[v2[2]]);
-                vtk_medial_surface->GetPolys()->InsertCellPoint(indices[v1[4]]);
+                vtk_medial_surface->GetPolys()->InsertCellPoint(indices[v1X[0]]);
+                vtk_medial_surface->GetPolys()->InsertCellPoint(indices[v2X[2]]);
+                vtk_medial_surface->GetPolys()->InsertCellPoint(indices[v1X[4]]);
             }
 
             num_axedgs++;
@@ -3071,9 +3071,9 @@ void *compute_axis (simplex *s, void *p) {
             // TJH: instead we pipe the data straight to our vtk structure
             {
                 vtk_medial_surface->GetPolys()->InsertNextCell(3);
-                vtk_medial_surface->GetPolys()->InsertCellPoint(indices[v1[3]]);
-                vtk_medial_surface->GetPolys()->InsertCellPoint(indices[v2[4]]);
-                vtk_medial_surface->GetPolys()->InsertCellPoint(indices[v1[5]]);
+                vtk_medial_surface->GetPolys()->InsertCellPoint(indices[v1X[3]]);
+                vtk_medial_surface->GetPolys()->InsertCellPoint(indices[v2X[4]]);
+                vtk_medial_surface->GetPolys()->InsertCellPoint(indices[v1X[5]]);
             }
 
             num_axedgs++;
@@ -3107,8 +3107,8 @@ void construct_face(simplex *s, short k)
     double outpole[3],inpole[3];
 
     cface[0] = '\0';
-    edge0 = s->neigh[v1[k]].vert;
-    edge1 = s->neigh[v2[k]].vert;
+    edge0 = s->neigh[v1X[k]].vert;
+    edge1 = s->neigh[v2X[k]].vert;
 
     if(adjlist[site_numm(edge0)].label==OUT) {
         outsite=edge0;
@@ -3125,9 +3125,9 @@ void construct_face(simplex *s, short k)
     }
 
 
-    nextv = s->neigh[v3[k]].vert;
+    nextv = s->neigh[v3X[k]].vert;
     /* nextv is the opposite vtx of the next simplex */
-    remv = s->neigh[v4[k]].vert;
+    remv = s->neigh[v4X[k]].vert;
     /* remv is a vtx of the next simplex with edge0, edge1 */
     prevv = remv;
     /* prevv is the vtx shared by prevs and nexts besides edge0, edge1 */
@@ -3138,9 +3138,9 @@ void construct_face(simplex *s, short k)
     /* visit the next simplex */
     /* print orthocenter of s->neigh[v3[k]].simp ...*/
     prevs = s;
-    nexts = s->neigh[v3[k]].simp;
+    nexts = s->neigh[v3X[k]].simp;
 
-    ns = v3[k];
+    ns = v3X[k];
     numedges=0;
     while (nexts != s) {
         if (nexts->status == CNV) {
@@ -3486,7 +3486,7 @@ STORAGE(basis_s)
 
 
 /* tables for runtime stats */
-int A[100]={0}, B[100] ={0}, C[100] = {0}, D[100] ={0};
+int AX[100]={0}, BX[100] ={0}, CX[100] = {0}, DX[100] ={0};
 int tot =0, totinf=0, bigt=0;
 
 
@@ -3624,7 +3624,7 @@ int reduce_inner(basis_s *v, simplex *s, int k) {
         v->sqb = Norm2(vb);
         v->sqa = Norm2(va);
 
-        if (2*v->sqb >= v->sqa) {B[j]++; return 1;}
+        if (2*v->sqb >= v->sqa) {BX[j]++; return 1;}
 
         Vec_scale_test(rdim,scale = sc(v,s,k,j),va);
 
@@ -4117,7 +4117,7 @@ simplex *build_convex_hull(gsitef *get_s, site_n *site_numm, short dim, short vd
 
     root = NULL;
     if (vd || power_diagram ) {
-        p = infinity;
+        pX = infinity;
         NEWLRC(basis_s, infinity_basis);
         infinity_basis->vecs[2*rdim-1]
             = infinity_basis->vecs[rdim-1]
@@ -4125,14 +4125,14 @@ simplex *build_convex_hull(gsitef *get_s, site_n *site_numm, short dim, short vd
         infinity_basis->sqa
             = infinity_basis->sqb
             = 1;
-    } else if (!(p = (*get_site)())) return 0;
+    } else if (!(pX = (*get_site)())) return 0;
 
     NEWL(simplex,root);
 
     ch_root = root;
 
     copy_simp(s,root);
-    root->peak.vert = p;
+    root->peak.vert = pX;
     root->peak.simp = s;
     s->peak.simp = root;
 
@@ -4172,8 +4172,8 @@ void free_hull_storage(void) {
 
 //#include "hull.h"  TJH: this file is now above
 
-extern struct simplex **pole1, **pole2;
-extern double* lfs_lb; /* array of estimated lower bounds on lfs */
+extern struct simplex **pole1X, **pole2X;
+extern double* lfs_lbX; /* array of estimated lower bounds on lfs */
 extern double est_r;  /* guess for r */
 extern struct polelabel *adjlist;
 extern struct plist **opplist;
@@ -4187,7 +4187,7 @@ extern double  thinthreshold;
 /* (This should never occur, but it did in early versions) */
 
 int loopStart = -1;
-int count = 0;
+int countX = 0;
 int lastCount = 0;
 
 /* TJH: moved these up
@@ -4298,23 +4298,23 @@ void *compute_vv(simplex *s, void *p) {
             (s->neigh[j].vert[2] < omins[2])) {
 
             /* if (i > (num_sites - 8) ) { /if bounding box vertex */
-            pole1[i]=NULL;
+            pole1X[i]=NULL;
             continue;
         }
 
         else {
 
-            if (pole1[i]==NULL) {
+            if (pole1X[i]==NULL) {
                 /* the vertex i is encountered for the 1st time */
                 if (s->status==VV) { /* we don't store infinite poles */
-                    pole1[i]=s;
+                    pole1X[i]=s;
                     continue;
                 }
             }
 
-            if (( s->status == VV) && ( pole1[i]->status == VV)) {
-                if ( sqdist(pole1[i]->vv,ta[j]) < sqdist(s->vv,ta[j]) ) {
-                    pole1[i]=s; /* update 1st pole */
+            if (( s->status == VV) && ( pole1X[i]->status == VV)) {
+                if ( sqdist(pole1X[i]->vv,ta[j]) < sqdist(s->vv,ta[j]) ) {
+                    pole1X[i]=s; /* update 1st pole */
                 }
             }
         }
@@ -4361,12 +4361,12 @@ void *compute_pole2(simplex *s, void *p) {
                     fprintf(DFILE,"cannot happen7\n");
             }
         }
-        if (!pole1[i]) {
+        if (!pole1X[i]) {
             /*      fprintf(DFILE, "no 1st pole\n"); */
             continue;
         }
 
-        if (pole1[i]->vv==NULL) {
+        if (pole1X[i]->vv==NULL) {
             // TJH: added this if statement
             if(DFILE)
                 fprintf(DFILE,"cannot happen8\n");
@@ -4385,10 +4385,10 @@ void *compute_pole2(simplex *s, void *p) {
         /* compute direction and length of vector from
            sample to first pole */
 
-        dir_and_dist(a,pole1[i]->vv,dir_p,&dist_p);
+        dir_and_dist(a,pole1X[i]->vv,dir_p,&dist_p);
 
         /* We have a vertex, and there is a good first pole. */
-        if ((s->status==VV)&&(pole1[i]->status==VV)) {
+        if ((s->status==VV)&&(pole1X[i]->status==VV)) {
 
             /* make direction vector from sample to this Voronoi vertex */
             dir_and_dist(a, s->vv, dir_s, &dist_s);
@@ -4403,11 +4403,11 @@ void *compute_pole2(simplex *s, void *p) {
                 if ((cos_sp < cos_2r) && (cos_sp > -cos_2r)) {
                     /* use to get lower bound on lfs */
                     est_lfs = dist_s /est_r * ((sqrt(1- cos_sp*cos_sp)) - est_r);
-                    if (est_lfs > lfs_lb[i]) lfs_lb[i] = est_lfs;
+                    if (est_lfs > lfs_lbX[i]) lfs_lbX[i] = est_lfs;
                 }
 
             } else {
-                lfs_lb[i] = 0;
+                lfs_lbX[i] = 0;
             }
 
             if (cos_sp > 0) {
@@ -4417,23 +4417,23 @@ void *compute_pole2(simplex *s, void *p) {
 
             /* s->vv is a candidate for pole2 */
 
-            if (!pole2[i]) {
+            if (!pole2X[i]) {
                 /* 1st pole2 candidate for vertex i */
 
-                pole2[i]=s;
+                pole2X[i]=s;
                 continue;
             }
 
-            else if (!pole2[i]->vv) { /* 2nd pole points null */
+            else if (!pole2X[i]->vv) { /* 2nd pole points null */
                 // TJH: added this if statement
                 if(DFILE)
                     fprintf(DFILE,"cannot happen4\n");
                 continue;
             }
 
-            else if ((pole2[i]->status == VV) &&
-                     (sqdist(a,pole2[i]->vv)<sqdist(a,s->vv)) )
-                pole2[i]=s; /* update 2nd pole */
+            else if ((pole2X[i]->status == VV) &&
+                     (sqdist(a,pole2X[i]->vv)<sqdist(a,s->vv)) )
+                pole2X[i]=s; /* update 2nd pole */
 
         }
     }
@@ -4470,13 +4470,13 @@ int cantLabelAnything(int pid) {
 
     if (loopStart == -1) {
         loopStart = pid;
-        count = 0;
+        countX = 0;
         lastCount = 0;
         return(pcFALSE);
     }
 
     if (pid == loopStart) {
-        if (count == lastCount) {
+        if (countX == lastCount) {
             /* infinite loop! */
             // TJH: added this if statement
             if(DFILE)
@@ -4484,12 +4484,12 @@ int cantLabelAnything(int pid) {
             return(pcTRUE);
         } else {
             /* we labeled something last time through */
-            lastCount = count;
-            count = 0;
+            lastCount = countX;
+            countX = 0;
         }
     } else {
         /* in the middle of the loop */
-        count++;
+        countX++;
     }
     return(pcFALSE);
 }
@@ -5235,7 +5235,7 @@ void update(int hi, double pr)
 //#include "hull.h"  TJH: this file is now above
 
 
-site p;
+site pX;
 
 long pnum;
 
@@ -5405,7 +5405,7 @@ void connect(simplex *s) {
     xfi = op_simp(seen,s)->vert;
     for (i=0, sn = s->neigh; i<cdim; i++,sn++) {
         xb = sn->vert;
-        if (p == xb) continue;
+        if (pX == xb) continue;
         sb = seen;
         sf = sn->simp;
         xf = xfi;
@@ -5443,13 +5443,13 @@ simplex *make_facets(simplex *seen) {
 
     if (!seen) return NULL;
     DEBS(-1) assert(sees(p,seen) && !seen->peak.vert);
-    EDEBS seen->peak.vert = p;
+    EDEBS seen->peak.vert = pX;
 
     for (i=0,bn = seen->neigh; i<cdim; i++,bn++) {
         n = bn->simp;
         if (pnum != n->visit) {
             n->visit = pnum;
-            if (sees(p,n)) make_facets(n);
+            if (sees(pX,n)) make_facets(n);
         }
         if (n->peak.vert) continue;
         copy_simp(ns,seen);
@@ -5459,7 +5459,7 @@ simplex *make_facets(simplex *seen) {
         ns->peak.simp = seen;
         /*      ns->Sb -= ns->neigh[i].basis->sqb; */
         NULLIFY(basis_s,ns->neigh[i].basis);
-        ns->neigh[i].vert = p;
+        ns->neigh[i].vert = pX;
         bn->simp = op_simp(n,seen)->simp = ns;
     }
     return ns;
@@ -5474,13 +5474,13 @@ simplex *extend_simplices(simplex *s) {
      */
 
     int i,
-        ocdim=cdim-1;
+      ocdim=cdim-1;
     simplex *ns;
     neighbor *nsn;
 
     if (s->visit == pnum) return s->peak.vert ? s->neigh[ocdim].simp : s;
     s->visit = pnum;
-    s->neigh[ocdim].vert = p;
+    s->neigh[ocdim].vert = pX;
     NULLIFY(basis_s,s->normal);
     NULLIFY(basis_s,s->neigh[0].basis);
     if (!s->peak.vert) {
@@ -5514,7 +5514,7 @@ simplex *search(simplex *root) {
     if (!st) st = (simplex **)malloc((ss+MAXDIM+1)*sizeof(simplex*));
     push(root->peak.simp);
     root->visit = pnum;
-    if (!sees(p,root))
+    if (!sees(pX,root))
         for (i=0,sn=root->neigh;i<cdim;i++,sn++) push(sn->simp);
     while (tms)
     {
@@ -5526,7 +5526,7 @@ simplex *search(simplex *root) {
         pop(s);
         if (s->visit == pnum) continue;
         s->visit = pnum;
-        if (!sees(p,s)) continue;
+        if (!sees(pX,s)) continue;
         if (!s->peak.vert) return s;
         for (i=0, sn=s->neigh; i<cdim; i++,sn++) push(sn->simp);
     }
@@ -5556,14 +5556,14 @@ point get_another_site(void) {
 void buildhull (simplex *root) {
 
     while (cdim < rdim) {
-        p = get_another_site();
-        if (!p) return;
-        if (out_of_flat(root,p))
+        pX = get_another_site();
+        if (!pX) return;
+        if (out_of_flat(root,pX))
             extend_simplices(root);
         else
             connect(make_facets(search(root)));
     }
-    while ((p = get_another_site())!=NULL)
+    while ((pX = get_another_site())!=NULL)
         connect(make_facets(search(root)));
 }
 //========io.c=============================================================
@@ -5791,7 +5791,7 @@ void *check_simplex(simplex *s, void *dum){
             print_simplex_f(s, DFILE, &print_neighbor_full);
             // TJH: added this if statement
             if(DFILE)
-                fprintf(DFILE, "site_num(p)=%ld\n",  site_num(p));
+                fprintf(DFILE, "site_num(p)=%ld\n",  site_num(pX));
             return s;
         }
         if (!s->peak.vert && sns->peak.vert && i!=-1) {
@@ -5807,7 +5807,7 @@ void *check_simplex(simplex *s, void *dum){
             // TJH: added this if statement
             if(DFILE)
                 fprintf(DFILE, "adjacency failure:\n");
-            DEBEXP(-1,site_num(p))
+            DEBEXP(-1,site_num(pX))
             print_simplex_f(sns, DFILE, &print_neighbor_full);
             print_simplex_f(s, DFILE, &print_neighbor_full);
             /* TJH exit(1);*/ ASSERT(pcFALSE);
@@ -5835,7 +5835,7 @@ void *check_simplex(simplex *s, void *dum){
     return NULL;
 }
 
-int p_neight(simplex *s, int i, void *dum) {return s->neigh[i].vert !=p;}
+int p_neight(simplex *s, int i, void *dum) {return s->neigh[i].vert !=pX;}
 
 void check_triang(simplex *root){visit_triang(root, &check_simplex);}
 
