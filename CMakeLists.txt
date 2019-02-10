@@ -11,3 +11,6 @@ else()
     SOURCES ${Module_SRCS}
     )
 endif()
+  if (NOT WIN32)
+    target_compile_options (Powercrust PUBLIC -Wno-maybe-uninitialized -Wno-unused-variable -Wno-deprecated -Wno-unused-but-set-variable)
+  endif()

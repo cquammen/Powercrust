@@ -1354,7 +1354,7 @@ out_func *out_funcs[] = {&vlist_out, &ps_out, &mp_out, &cpr_out, &off_out};
 
 int set_out_func(char *s) {
 
-    int i;
+    long unsigned int i;
 
     for (i=0;i< sizeof(out_funcs)/(sizeof (out_func*)); i++)
         if (strcmp(s,output_forms[i])==0) return i;
@@ -1393,19 +1393,10 @@ static neighbor p_neigh={0,0,0};	// EPRO added set to global
 void adapted_main()
 {
     long    seed = 0, poleid=0;
-    short   shuffle = 1,
-        output = 0,   // TJH: set to 1 if you want output reported to stdout, 0 otherwise
-        hist = 0,
-        vol = 0,
-        ofn = 0,
-        ifn = 0,
-        bad = 0 /* for -B */
+    short   bad = 0 /* for -B */
         ;
     int /* TJH option, */num_poles=0;
     double  pole_angle;
-    char    ofile[50] = "",
-        ifile[50] = "",
-        ofilepre[50] = "";
 
     /* TJH: we've bypassed all the file handling so we don't need this bit
     FILE *INPOLE, *OUTPOLE,*HEAD,*POLEINFO;*/
@@ -1416,7 +1407,6 @@ void adapted_main()
 
     struct edgesimp *eindex;
     double samp[3];
-    double tmp_pt[3];
     int numbadpoles=0;
     // TJH double x,y,z,r,d;
     // TJH int l;
@@ -1902,10 +1892,12 @@ void adapted_main()
 
     for (i=0;i<num_poles;i++) {
 
-        for (k=0; k<3; k++)
+/*
+      for (k=0; k<3; k++)
             tmp_pt[k] = get_site_offline(i)[k]/mult_up;
 
-        /* TJH: we have bypassed the file routines, so we don't need this bit
+      double tmp_pt[3];
+        TJH: we have bypassed the file routines, so we don't need this bit
         fprintf(POLEINFO,"%f %f %f %f %d %f \n ",tmp_pt[0],tmp_pt[1],tmp_pt[2],
                 adjlist[i].sqradius,adjlist[i].label,adjlist[i].samp_distance);*/
 
@@ -2599,26 +2591,27 @@ void *compute_2d_power_vv(simplex *s, void *p) {
   static out_func *out_func_here;
   point v[MAXDIM];
   int j,k,inf=0, index;
-    double cc[2], cond, ta[3][3];
+  double cc[2], cond, ta[3][3];
 
   if (p) {out_func_here = (out_func*)p; if (!s) return NULL;}
 
   index = 0;
-  for (j=0;j<3;j++) {
-        v[j] = s->neigh[j].vert;
-        /* v[j] stores coordinates of j'th vertex of simplex s; j=0..3 */
-        if (v[j]==infinity) { /* means simplex s is on the convex hull */
-            inf=1;
-            continue; /* skip the rest of the for loop; process next vertex */
-        }
-        /*i=(site_num)(v[j]); i is the index of the vertex v[j] */
-        for (k=0;k<3;k++) {
-            ta[index][k] = v[j][k]/mult_up;
-            /* restore original coords   */
-            /* if inf=1, ta[0],ta[1] are non-infinite vertices of s*/
-            /*    inf=0, ta[0],ta[1],ta[2] are 3 vertices of s     */
-        }
-        index++;
+  for (j=0;j<3;j++)
+  {
+    v[j] = s->neigh[j].vert;
+    /* v[j] stores coordinates of j'th vertex of simplex s; j=0..3 */
+    if (v[j]==infinity) { /* means simplex s is on the convex hull */
+      inf=1;
+      continue; /* skip the rest of the for loop; process next vertex */
+    }
+    /*i=(site_num)(v[j]); i is the index of the vertex v[j] */
+    for (k=0;k<3;k++) {
+      ta[index][k] = v[j][k]/mult_up;
+      /* restore original coords   */
+      /* if inf=1, ta[0],ta[1] are non-infinite vertices of s*/
+      /*    inf=0, ta[0],ta[1],ta[2] are 3 vertices of s     */
+    }
+    index++;
   }
   printf("\n");
   if (!inf) { /* if not faces on convex hull, compute circumcenter*/
@@ -2648,37 +2641,6 @@ void *compute_2d_power_vv(simplex *s, void *p) {
 
   return NULL;
 }
-
-/*
-void *reg_triang(simplex *s, void *p) {
-
-  static out_func *out_func_here;
-  point v[MAXDIM];
-  int j,k,vnum;
-        double cc[3], cond, ta[4][4];
-
-  if (p) {out_func_here = (out_func*)p; if (!s) return NULL;}
-
-  for (j=0;j<cdim;j++) {
-    v[j] = s->neigh[j].vert;
-
-    if (v[j]==infinity) {
-      return NULL;
-    }
-  }
-
-  for (j=0;j<cdim;j++) {
-                vnum=0;
-                for (k=0;k<cdim;k++) {
-                        if (k==j) continue;
-                        v[vnum++] = (s->neigh[k].vert);
-                }
-           fprintf(RT,"3 %d %d %d\n",(site_num)(v[0]),(site_num)(v[1]),(site_num)(v[2]));
-        }
-        return NULL;
-}
-*/
-
 
 void *compute_3d_power_vv(simplex *s, void *p) {
 
@@ -5397,8 +5359,8 @@ void connect(simplex *s) {
 
     if (!s) return;
     assert(!s->peak.vert
-           && s->peak.simp->peak.vert==p
-           && !op_vert(s,p)->simp->peak.vert);
+           && s->peak.simp->peak.vert==pX
+           && !op_vert(s,pX)->simp->peak.vert);
     if (s->visit==pnum) return;
     s->visit = pnum;
     seen = s->peak.simp;
@@ -5442,7 +5404,7 @@ simplex *make_facets(simplex *seen) {
 
 
     if (!seen) return NULL;
-    DEBS(-1) assert(sees(p,seen) && !seen->peak.vert);
+    DEBS(-1) assert(sees(pX,seen) && !seen->peak.vert);
     EDEBS seen->peak.vert = pX;
 
     for (i=0,bn = seen->neigh; i<cdim; i++,bn++) {
