@@ -11,6 +11,7 @@ else()
     SOURCES ${Module_SRCS}
     )
 endif()
-  if (NOT WIN32)
-    target_compile_options (Powercrust PUBLIC -Wno-maybe-uninitialized -Wno-unused-variable -Wno-deprecated -Wno-unused-but-set-variable)
-  endif()
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  target_compile_options (Powercrust PUBLIC -Wno-unused-parameter  -Wno-maybe-uninitialized -Wno-unused-variable -Wno-deprecated -Wno-unused-but-set-variable)
+endif()
+  
