@@ -31,21 +31,19 @@ vtkStandardNewMacro(vtkPowerCrustSurfaceReconstruction);
 
 vtkPowerCrustSurfaceReconstruction::vtkPowerCrustSurfaceReconstruction()
 {
-    this->SetNumberOfInputPorts(1);
-    this->SetNumberOfOutputPorts(1);
+  this->SetNumberOfInputPorts(1);
+  this->SetNumberOfOutputPorts(1);
 
-    this->medial_surface = vtkPolyData::New();
-    m_estimate_r = 0.6;	// EPRO-added to change the default value
+  this->medial_surface = vtkPolyData::New();
+  m_estimate_r = 0.6;	// EPRO-added to change the default value
 }
 
 vtkPowerCrustSurfaceReconstruction::~vtkPowerCrustSurfaceReconstruction()
 {
-    this->medial_surface->Delete();
+  this->medial_surface->Delete();
 }
 
-
-
-//=================================================================================================
+//===============================================================================
 
 /* -----------------------------------------------------------------
 
@@ -312,18 +310,6 @@ void free_##X##_storage(void) {new_block_##X(0);}    \
 }            \
 
 
-
-
-
-#if 0
-STORAGE_GLOBALS(type)
-    STORAGE(type)
-    NEWL(type,xxx)
-    FREEL(type,xxx)
-    dec_ref(type,xxxx)
-    inc_ref(type,xxxx)
-    NULLIFY(type,xxxx)
-#endif
 //========hull.h=============================================================
 /* hull.h */
 
@@ -495,9 +481,6 @@ STORAGE_GLOBALS(basis_s)
 
     typedef struct neighbor {
         site vert; /* vertex of simplex */
-        /*        short edgestatus[3];  FIRST_EDGE if not visited
-                  NOT_POW if not dual to powercrust faces
-                  POW if dual to powercrust faces */
         struct simplex *simp; /* neighbor sharing all vertices but vert */
         basis_s *basis; /* derived vectors */
     } neighbor;
@@ -520,14 +503,6 @@ typedef struct simplex {
                             VISITED
                             NOT_POW if not dual to powercrust faces
                             POW if dual to powercrust faces */
-    /*  short tristatus[4];   triangle status :
-        FIRST if not visited
-        NO   if not a triangle
-        DEG  if degenerate triangle
-        SURF if surface triangle
-        NORM if fails normal test
-        VOR  if falis voronoi edge test
-        VOR_NORM if fails both test */
     /* NOTE!!! neighbors has to be the LAST field in the simplex stucture,
        since it's length gets altered by some tricky Clarkson-move.
        Also peak has to be the one before it.
@@ -908,7 +883,8 @@ void srandom(int s) { srand(s); }*/
 #include <math.h>
 #include <stdlib.h>
 
-void _dorand48(unsigned short xseed[3]);
+
+//void _dorand48(unsigned short xseed[3]);
 //void __dorand48(unsigned short xseed[3]);
 //void    __dorand48 __P((unsigned short[3]));
 
@@ -3425,8 +3401,6 @@ void Vec_scale_test(int n, Coord a, Coord *x)
 int exact_bits;
 float b_err_min, b_err_min_sq;
 
-double logb(double); /* on SGI machines: returns floor of log base 2 */
-
 static short vd;
 static basis_s  tt_basis = {0,1,-1,0,0,{0}};
 static basis_s *tt_basisp = &tt_basis, *infinity_basis;
@@ -3849,11 +3823,11 @@ double radsq(simplex *s) {
 }
 
 
-void *zero_marks(simplex * s, void *dum) { s->mark = 0; return NULL; }
+void *zero_marks(simplex * s, void *) { s->mark = 0; return NULL; }
 
-void *one_marks(simplex * s, void *dum) {s->mark = 1; return NULL;}
+void *one_marks(simplex * s, void *) {s->mark = 1; return NULL;}
 
-void *show_marks(simplex * s, void *dum) {printf("%d",s->mark); return NULL;}
+void *show_marks(simplex * s, void *) {printf("%d",s->mark); return NULL;}
 
 
 #define swap_points(a,b) {point t; t=a; a=b; b=t;}
@@ -3906,7 +3880,7 @@ int alph_test(simplex *s, int i, void *alphap) {
 }
 
 
-void *conv_facetv(simplex *s, void *dum) {
+void *conv_facetv(simplex *s, void *) {
     int i;
     for (i=0;i<cdim;i++) if (s->neigh[i].vert==infinity) {return s;}
     return NULL;
@@ -3914,7 +3888,7 @@ void *conv_facetv(simplex *s, void *dum) {
 
 short mi[MAXPOINTS], mo[MAXPOINTS];
 
-void *mark_points(simplex *s, void *dum) {
+void *mark_points(simplex *s, void *) {
     int i, snum;
     neighbor *sn;
 
@@ -3957,7 +3931,9 @@ double find_alpha(simplex *root) {
     float al=0,ah,am;
 
     for (ah=i=0;i<pdim;i++) ah += (maxs[i]-mins[i])*(maxs[i]-mins[i]);
+#ifndef NDEBUG
     int check_ashape_returns = check_ashape(root,ah);
+#endif
     assert(check_ashape_returns);
     for (i=0;i<17;i++) {
         if (check_ashape(root, am = (al+ah)/2)) ah = am;
@@ -4843,7 +4819,7 @@ STORAGE(fg)
     return f;
 }
 
-void *add_to_fg(simplex *s, void *dum) {
+void *add_to_fg(simplex *s, void *) {
 
     neighbor t, *si, *sj, *sn = s->neigh;
     fg *fq;
@@ -5252,16 +5228,16 @@ STORAGE(simplex)
     return NULL;
 }
 
-int truet(simplex *s, int i, void *dum) {return 1;}
+int truet(simplex *s, int i, void *) {return 1;}
 
 void *visit_triang(simplex *root, visit_func *visit)
     /* visit the whole triangulation */
 {return visit_triang_gen(root, visit, truet);}
 
 
-int hullt(simplex *s, int i, void *dummy) {return i>-1;}
+int hullt(simplex *s, int i, void *) {return i>-1;}
 
-void *facet_test(simplex *s, void *dummy) {return (!s->peak.vert) ? s : NULL;}
+void *facet_test(simplex *s, void *) {return (!s->peak.vert) ? s : NULL;}
 
 void *visit_hull(simplex *root, visit_func *visit)
     /* visit all simplices with facets of the current hull */
@@ -5616,7 +5592,7 @@ FILE* epopen(char *com, char *mode) {
 }*/
 
 // TJH: replaced this function with an empty body
-void print_neighbor_snum(FILE* F, neighbor *n){}
+void print_neighbor_snum(FILE*, neighbor *){}
 /*void print_neighbor_snum(FILE* F, neighbor *n){
     // TJH: added this line
     if(!F) return;
@@ -5633,7 +5609,7 @@ void print_neighbor_snum(FILE* F, neighbor *n){}
 }*/
 
 // TJH: replaced this function with an empty body
-void print_basis(FILE *F, basis_s* b) {}
+void print_basis(FILE *, basis_s*) {}
 /*void print_basis(FILE *F, basis_s* b) {
     // TJH: added this line
     if(!F) return;
@@ -5648,7 +5624,7 @@ void print_basis(FILE *F, basis_s* b) {}
 }*/
 
 // TJH: replaced this function with an empty body
-void print_simplex_num(FILE *F, simplex *s) {}
+void print_simplex_num(FILE *, simplex *) {}
 /*void print_simplex_num(FILE *F, simplex *s) {
     // TJH: added this line
     if(!F) return;
@@ -5659,7 +5635,7 @@ void print_simplex_num(FILE *F, simplex *s) {}
 }*/
 
 // TJH: replaced this function with an empty body
-void print_neighbor_full(FILE *F, neighbor *n){}
+void print_neighbor_full(FILE *, neighbor *){}
 /*void print_neighbor_full(FILE *F, neighbor *n){
     // TJH: added this line
     if(!F) return;
@@ -5680,7 +5656,7 @@ void print_neighbor_full(FILE *F, neighbor *n){}
 }*/
 
 // TJH: replaced this function with an empty body
-void *print_facet(FILE *F, simplex *s, print_neighbor_f *pnfin) { return NULL; }
+void *print_facet(FILE *, simplex *, print_neighbor_f *) { return NULL; }
 /*void *print_facet(FILE *F, simplex *s, print_neighbor_f *pnfin) {
     // TJH: added this line
     if(!F) return NULL;
@@ -5696,7 +5672,7 @@ void *print_facet(FILE *F, simplex *s, print_neighbor_f *pnfin) { return NULL; }
 }*/
 
 // TJH: replaced this function with an empty body
-void *print_simplex_f(simplex *s, FILE *F, print_neighbor_f *pnfin){ return NULL; }
+void *print_simplex_f(simplex *, FILE *, print_neighbor_f *){ return NULL; }
 /*void *print_simplex_f(simplex *s, FILE *F, print_neighbor_f *pnfin){
     // TJH: added this line
     if(!F) return NULL;
@@ -5715,7 +5691,7 @@ void *print_simplex_f(simplex *s, FILE *F, print_neighbor_f *pnfin){ return NULL
 }*/
 
 // TJH: replaced this function with an empty body
-void *print_simplex(simplex *s, void *Fin) { return NULL; }
+void *print_simplex(simplex *, void *) { return NULL; }
 /*void *print_simplex(simplex *s, void *Fin) {
     static FILE *F;
 
@@ -5725,7 +5701,7 @@ void *print_simplex(simplex *s, void *Fin) { return NULL; }
 }*/
 
 // TJH: replaced this function with an empty body
-void print_triang(simplex *root, FILE *F, print_neighbor_f *pnf) {}
+void print_triang(simplex *, FILE *, print_neighbor_f *) {}
 /*void print_triang(simplex *root, FILE *F, print_neighbor_f *pnf) {
     print_simplex(0,F);
     print_simplex_f(0,0,pnf);
@@ -5737,7 +5713,7 @@ void print_triang(simplex *root, FILE *F, print_neighbor_f *pnf) {}
 
 
 
-void *check_simplex(simplex *s, void *dum){
+void *check_simplex(simplex *s, void *){
 
     int i,j,k,l;
     neighbor *sn, *snn, *sn2;
@@ -5797,7 +5773,7 @@ void *check_simplex(simplex *s, void *dum){
     return NULL;
 }
 
-int p_neight(simplex *s, int i, void *dum) {return s->neigh[i].vert !=pX;}
+int p_neight(simplex *s, int i, void *) {return s->neigh[i].vert !=pX;}
 
 void check_triang(simplex *root){visit_triang(root, &check_simplex);}
 
@@ -5806,7 +5782,7 @@ void check_new_triangs(simplex *s){visit_triang_gen(s, check_simplex, p_neight);
 
 /* outfuncs: given a list of points, output in a given format */
 
-void vv_out(point *v, int vdim, FILE *Fin, int amble) {
+void vv_out(point *v, int vdim, FILE *Fin, int) {
     /* sunghee */
     static FILE *F;
     int i,j;
@@ -5824,7 +5800,7 @@ void vv_out(point *v, int vdim, FILE *Fin, int amble) {
 
 // TJH: I *think* this is what was meant (old version below)
 // OK, so the functionality isn't identical but using static like this is cheesy.
-void vlist_out(point *v, int vdim, FILE *Fout, int amble)
+void vlist_out(point *v, int vdim, FILE *Fout, int)
 {
     if(!Fout) return;
     if(!v) return;
@@ -5833,18 +5809,6 @@ void vlist_out(point *v, int vdim, FILE *Fout, int amble)
         fprintf(Fout, "%ld ", (site_num)(v[j]));
     fprintf(Fout,"\n");
 }
-/*void vlist_out(point *v, int vdim, FILE *Fin, int amble) {
-
-    static FILE *F;
-    int j;
-
-    if (Fin) {F=Fin; if (!v) return;}
-
-    for (j=0;j<vdim;j++) fprintf(F, "%ld ", (site_num)(v[j]));
-    fprintf(F,"\n");
-
-    return;
-}*/
 
 void off_out(point *v, int vdim, FILE *Fin, int amble) {
 
@@ -11313,210 +11277,6 @@ void init_rand(long seed) {
         fprintf(DFILE,"init_rand: seed = %d\n",X[1]);
 }
 
-/* commented out by TJH
-
-#ifdef cray
-double logb(double x) {
-  if (x<=0) return -1e2460;
-  return log(x)/log(2);
-}
-#endif*/
-
-double logb(double x)
-{
-  //return log(x)/log(2); // EPRO commented
-  return log(x)/log(2.0); // EPRO added
-
-}
-//========nrand48.c=============================================================
-/*
- * Copyright (c) 1993 Martin Birgmeier
- * All rights reserved.
- *
- * You may redistribute unmodified or modified versions of this source
- * code provided that the above copyright notice and this and the
- * following conditions are retained.
- *
- * This software is provided ``as is'', and comes with no warranties
- * of any kind. I shall in no event be liable for anything that happens
- * to anyone/anything when using this software.
- */
-
-// #include "rand48.h"  TJH: this file is now above
-
-long nrand48(unsigned short xseed[3])
-{
-  _dorand48(xseed);
-  return ((long) xseed[2] << 15) + ((long) xseed[1] >> 1);
-}
-//========drand48.c=============================================================
-/*
- * Copyright (c) 1993 Martin Birgmeier
- * All rights reserved.
- *
- * You may redistribute unmodified or modified versions of this source
- * code provided that the above copyright notice and this and the
- * following conditions are retained.
- *
- * This software is provided ``as is'', and comes with no warranties
- * of any kind. I shall in no event be liable for anything that happens
- * to anyone/anything when using this software.
- */
-
-/*
- * modified to compile in MetroWerks C++, D. Eppstein, April 1997
- * (my changes marked with "DE")
- */
-
-//#include "rand48.h"   TJH: this file is now above
-
-/* declare erand48 - DE */
-extern double erand48_2(unsigned short xseed[3]);
-
-extern unsigned short _rand48_seed[3];
-
-double drand48(void)
-{
-  return erand48_2(_rand48_seed);
-}
-//========erand48.c=============================================================
-/*
- * Copyright (c) 1993 Martin Birgmeier
- * All rights reserved.
- *
- * You may redistribute unmodified or modified versions of this source
- * code provided that the above copyright notice and this and the
- * following conditions are retained.
- *
- * This software is provided ``as is'', and comes with no warranties
- * of any kind. I shall in no event be liable for anything that happens
- * to anyone/anything when using this software.
- */
-
-// #include "rand48.h"  TJH: this file is now above
-
-double erand48_2(unsigned short xseed[3])
-{
-  _dorand48(xseed);
-  return ldexp((double) xseed[0], -48) +
-         ldexp((double) xseed[1], -32) +
-         ldexp((double) xseed[2], -16);
-}
-//========_rand48.c=============================================================
-/*
- * Copyright (c) 1993 Martin Birgmeier
- * All rights reserved.
- *
- * You may redistribute unmodified or modified versions of this source
- * code provided that the above copyright notice and this and the
- * following conditions are retained.
- *
- * This software is provided ``as is'', and comes with no warranties
- * of any kind. I shall in no event be liable for anything that happens
- * to anyone/anything when using this software.
- */
-
-//#include "rand48.h"   TJH: this file is now above
-
-unsigned short _rand48_seed[3] = {
-  RAND48_SEED_0,
-  RAND48_SEED_1,
-  RAND48_SEED_2
-};
-unsigned short _rand48_mult[3] = {
-  RAND48_MULT_0,
-  RAND48_MULT_1,
-  RAND48_MULT_2
-};
-unsigned short _rand48_add = RAND48_ADD;
-
-void
-_dorand48(unsigned short xseed[3])
-{
-  unsigned long accu;
-  unsigned short temp[2];
-
-  accu = (unsigned long) _rand48_mult[0] * (unsigned long) xseed[0] +
-   (unsigned long) _rand48_add;
-  temp[0] = (unsigned short) accu;  /* lower 16 bits */
-  accu >>= sizeof(unsigned short) * 8;
-  accu += (unsigned long) _rand48_mult[0] * (unsigned long) xseed[1] +
-   (unsigned long) _rand48_mult[1] * (unsigned long) xseed[0];
-  temp[1] = (unsigned short) accu;  /* middle 16 bits */
-  accu >>= sizeof(unsigned short) * 8;
-  accu += _rand48_mult[0] * xseed[2] + _rand48_mult[1] * xseed[1] + _rand48_mult[2] * xseed[0];
-  xseed[0] = temp[0];
-  xseed[1] = temp[1];
-  xseed[2] = (unsigned short) accu;
-}
-//========seed48.c=============================================================
-/*
- * Copyright (c) 1993 Martin Birgmeier
- * All rights reserved.
- *
- * You may redistribute unmodified or modified versions of this source
- * code provided that the above copyright notice and this and the
- * following conditions are retained.
- *
- * This software is provided ``as is'', and comes with no warranties
- * of any kind. I shall in no event be liable for anything that happens
- * to anyone/anything when using this software.
- */
-
-//#include "rand48.h"   TJH: this file is now above
-
-extern unsigned short _rand48_seed[3];
-extern unsigned short _rand48_mult[3];
-extern unsigned short _rand48_add;
-
-unsigned short *
-seed48(unsigned short xseed[3])
-{
-  static unsigned short sseed[3];
-
-  sseed[0] = _rand48_seed[0];
-  sseed[1] = _rand48_seed[1];
-  sseed[2] = _rand48_seed[2];
-  _rand48_seed[0] = xseed[0];
-  _rand48_seed[1] = xseed[1];
-  _rand48_seed[2] = xseed[2];
-  _rand48_mult[0] = RAND48_MULT_0;
-  _rand48_mult[1] = RAND48_MULT_1;
-  _rand48_mult[2] = RAND48_MULT_2;
-  _rand48_add = RAND48_ADD;
-  return sseed;
-}
-//========srand48.c=============================================================
-/*
- * Copyright (c) 1993 Martin Birgmeier
- * All rights reserved.
- *
- * You may redistribute unmodified or modified versions of this source
- * code provided that the above copyright notice and this and the
- * following conditions are retained.
- *
- * This software is provided ``as is'', and comes with no warranties
- * of any kind. I shall in no event be liable for anything that happens
- * to anyone/anything when using this software.
- */
-
-// #include "rand48.h"   TJH: this file is now above
-
-extern unsigned short _rand48_seed[3];
-extern unsigned short _rand48_mult[3];
-extern unsigned short _rand48_add;
-
-void
-srand48(long seed)
-{
-  _rand48_seed[0] = RAND48_SEED_0;
-  _rand48_seed[1] = (unsigned short) seed;
-  _rand48_seed[2] = (unsigned short) (seed >> 16);
-  _rand48_mult[0] = RAND48_MULT_0;
-  _rand48_mult[1] = RAND48_MULT_1;
-  _rand48_mult[2] = RAND48_MULT_2;
-  _rand48_add = RAND48_ADD;
-}
 //=====================================================================
 
 void vtkPowerCrustSurfaceReconstruction::PrintSelf(ostream& os, vtkIndent indent)
@@ -11562,9 +11322,6 @@ int vtkPowerCrustSurfaceReconstruction::RequestData(vtkInformation *vtkNotUsed(r
 
   vtkPolyData *output = vtkPolyData::SafeDownCast(
       outInfo->Get(vtkDataObject::DATA_OBJECT()));
-
-
-  vtkIdType numPts=input->GetNumberOfPoints();
 
   {
   vtkPoints *points = vtkPoints::New();
