@@ -6414,7 +6414,7 @@ void tetcircumcenter(double a[3],double b[3],double c[3],double d[3],
     double circumcenter[3];
     double *cond;*/
 void tricircumcenter3d(double a[3],double b[3],double c[3],double circumcenter[3],
-                       double *cond)
+                       double *)
 {
     double xba, yba, zba, xca, yca, zca;
     double balength, calength;
@@ -11074,7 +11074,7 @@ unsigned short X[3];
 
 double double_rand(void) {return erand48(X);}
 
-void init_rand(long seed) {
+void init_rand(long) {
 //  X[1]=(seed==0) ? time(0) : seed;	//EPRO - commented
 
   X[1] = 10000;	//EPRO - added to set a static value - to get always the same result when the
