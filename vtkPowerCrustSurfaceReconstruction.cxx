@@ -4902,7 +4902,7 @@ void visit_fg_far(fg *faces_gr, void (*v_fg)(Tree *, int)) {
 
 FILE *FG_OUT;
 
-void p_fg(Tree* t, int depth, int bad) {
+void p_fg(Tree* t, int depth, int) {
     static int fa[MAXDIM];
     int i;
     static double mults[MAXDIM];
@@ -4920,7 +4920,7 @@ void p_fg(Tree* t, int depth, int bad) {
 
 int p_fg_x_depth;
 
-void p_fg_x(Tree*t, int depth, int bad) {
+void p_fg_x(Tree*t, int depth, int) {
 
     static int fa[MAXDIM];
     static point fp[MAXDIM];
@@ -5228,14 +5228,14 @@ STORAGE(simplex)
     return NULL;
 }
 
-int truet(simplex *s, int i, void *) {return 1;}
+int truet(simplex *, int, void *) {return 1;}
 
 void *visit_triang(simplex *root, visit_func *visit)
     /* visit the whole triangulation */
 {return visit_triang_gen(root, visit, truet);}
 
 
-int hullt(simplex *s, int i, void *) {return i>-1;}
+int hullt(simplex *, int, void *) {return i>-1;}
 
 void *facet_test(simplex *s, void *) {return (!s->peak.vert) ? s : NULL;}
 
@@ -6169,7 +6169,6 @@ void sym_update(int pi)
         if (defer) {
             if (adjlist[npi].bad == BAD_POLE) {
                 eindex = eindex->next;
-                /*fprintf(DFILE,"found bad pole.. defer its labeling\n");*/
                 continue;
             }
         }
