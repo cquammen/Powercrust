@@ -4717,31 +4717,6 @@ Tree * insert(site i, Tree * t) {
     return new_tree;
 }
 
-/* commented out by TJH - not used and causes problems because delete is a keyword
-Tree * delete(site i, Tree *t) {
-    // Deletes i from the tree if it's there.
-    // Return a pointer to the resulting tree.
-    Tree * x;
-    int tsize;
-
-    if (!t) return NULL;
-    tsize = t->size;
-    t = splay(i,t);
-    if (compare(i, t->key) == 0) {               // found it
-        if (!t->left) {
-            x = t->right;
-        } else {
-            x = splay(i, t->left);
-            x->right = t->right;
-        }
-        FREEL(Tree,t);
-        if (x) x->size = tsize-1;
-        return x;
-    } else {
-        return t;                         // It wasn't there
-    }
-}*/
-
 Tree *find_rank(int r, Tree *t) {
     /* Returns a pointer to the node in the tree with the given rank.  */
     /* Returns NULL if there is no such node.                          */
@@ -5810,178 +5785,13 @@ void vlist_out(point *v, int vdim, FILE *Fout, int)
     fprintf(Fout,"\n");
 }
 
-void off_out(point *v, int vdim, FILE *Fin, int amble) {
+void off_out(point *, int, FILE *, int) {}
 
-    /* TJH: this code never get used, have commented it out to make this clear
+void mp_out(point *, int, FILE *, int) {}
 
-    static FILE *F, *G;
-    static FILE *OFFFILE;
-    static char offfilenam[L_tmpnam];
-    char comst[100], buf[200];
-    int j,i;
+void ps_out(point *, int, FILE *, int) {}
 
-    if (Fin) {F=Fin;}
-
-    if (pdim!=3) { warning(-10, off apparently for 3d points only); return;}
-
-    if (amble==0) {
-        for (i=0;i<vdim;i++) if (v[i]==infinity) return;
-        fprintf(OFFFILE, "%d ", vdim);
-        for (j=0;j<vdim;j++) fprintf(OFFFILE, "%ld ", (site_num)(v[j]));
-        fprintf(OFFFILE,"\n");
-    } else if (amble==-1) {
-        OFFFILE = efopen(tmpnam(offfilenam), "w");
-    } else {
-        efclose(OFFFILE);
-
-        fprintf(F, "    OFF\n");
-
-        sprintf(comst, "wc %s", tmpfilenam);
-        G = epopen(comst, "r");
-        fscanf(G, "%d", &i);
-        fprintf(F, " %d", i);
-        pclose(G);
-
-        sprintf(comst, "wc %s", offfilenam);
-        G = epopen(comst, "r");
-        fscanf(G, "%d", &i);
-        fprintf(F, " %d", i);
-        pclose(G);
-
-        fprintf (F, " 0\n");
-
-        G = efopen(tmpfilenam, "r");
-        while (fgets(buf, sizeof(buf), G)) fprintf(F, "%s", buf);
-        efclose(G);
-
-        G = efopen(offfilenam, "r");
-
-
-        while (fgets(buf, sizeof(buf), G)) fprintf(F, "%s", buf);
-        efclose(G);
-    }
-
-    */
-}
-
-
-
-void mp_out(point *v, int vdim, FILE *Fin, int amble) {
-
-    /* should fix scaling */
-
-    /* TJH: this code never gets used, have commented it out to make clear
-
-    static int figno=1;
-    static FILE *F;
-
-    if (Fin) {F=Fin;}
-
-    if (pdim!=2) { warning(-10, mp for planar points only); return;}
-    if (amble==0) {
-        int i;
-        if (!v) return;
-        for (i=0;i<vdim;i++) if (v[i]==infinity) {
-            point t=v[i];
-            v[i]=v[vdim-1];
-            v[vdim-1] = t;
-            vdim--;
-            break;
-        }
-        fprintf(F, "draw ");
-        for (i=0;i<vdim;i++)
-            fprintf(F,
-                    (i+1<vdim) ? "(%Gu,%Gu)--" : "(%Gu,%Gu);\n",
-                    v[i][0]/mult_up,v[i][1]/mult_up
-                );
-    } else if (amble==-1) {
-        if (figno==1) fprintf(F, "u=1pt;\n");
-        fprintf(F , "beginfig(%d);\n",figno++);
-    } else if (amble==1) {
-        fprintf(F , "endfig;\n");
-    }
-
-    */
-}
-
-
-void ps_out(point *v, int vdim, FILE *Fin, int amble) {
-
-    /* TJH: this code never gets used, have commented out to make clear
-
-    static FILE *F;
-    static double scaler;
-
-    if (Fin) {F=Fin;}
-
-    if (pdim!=2) { warning(-10, ps for planar points only); return;}
-
-    if (amble==0) {
-        int i;
-        if (!v) return;
-        for (i=0;i<vdim;i++) if (v[i]==infinity) {
-            point t=v[i];
-            v[i]=v[vdim-1];
-            v[vdim-1] = t;
-            vdim--;
-            break;
-        }
-        fprintf(F,
-                "newpath %G %G moveto\n",
-                v[0][0]*scaler,v[0][1]*scaler);
-        for (i=1;i<vdim;i++)
-            fprintf(F,
-                    "%G %G lineto\n",
-                    v[i][0]*scaler,v[i][1]*scaler
-                );
-        fprintf(F, "stroke\n");
-    } else if (amble==-1) {
-        float len[2], maxlen;
-        fprintf(F, "%%!PS\n");
-        len[0] = maxs[0]-mins[0]; len[1] = maxs[1]-mins[1];
-        maxlen = (len[0]>len[1]) ? len[0] : len[1];
-        scaler = 216/maxlen;
-
-        fprintf(F, "%%%%BoundingBox: %G %G %G %G \n",
-                mins[0]*scaler,
-                mins[1]*scaler,
-                maxs[0]*scaler,
-                maxs[1]*scaler);
-        fprintf(F, "%%%%Creator: hull program\n");
-        fprintf(F, "%%%%Pages: 1\n");
-        fprintf(F, "%%%%EndProlog\n");
-        fprintf(F, "%%%%Page: 1 1\n");
-        fprintf(F, " 0.5 setlinewidth [] 0 setdash\n");
-        fprintf(F, " 1 setlinecap 1 setlinejoin 10 setmiterlimit\n");
-    } else if (amble==1) {
-        fprintf(F , "showpage\n %%%%EOF\n");
-    }
-
-    */
-}
-
-void cpr_out(point *v, int vdim, FILE *Fin, int amble) {
-
-    /* TJH: this code never gets used, have commented out to make clear
-
-    static FILE *F;
-    int i;
-
-    if (Fin) {F=Fin; if (!v) return;}
-
-    if (pdim!=3) { warning(-10, cpr for 3d points only); return;}
-
-    for (i=0;i<vdim;i++) if (v[i]==infinity) return;
-
-    fprintf(F, "t %G %G %G %G %G %G %G %G %G 3 128\n",
-            v[0][0]/mult_up,v[0][1]/mult_up,v[0][2]/mult_up,
-            v[1][0]/mult_up,v[1][1]/mult_up,v[1][2]/mult_up,
-            v[2][0]/mult_up,v[2][1]/mult_up,v[2][2]/mult_up
-        );
-
-    */
-}
-
+void cpr_out(point *, int, FILE *, int) {}
 
 /* vist_funcs for different kinds of output: facets, alpha shapes, etc. */
 
@@ -7027,7 +6837,6 @@ int scale(int dim, point p) {
 #include <stdlib.h>
 #include <math.h>
 
-//#include <sys/time.h> // TJH commented out, replaced with the below
 #include <time.h>
 
 //#include "hull.h" /* sunghee */  TJH: this file is now above
@@ -11537,15 +11346,6 @@ and added them to the project... and do you know it actually worked!
 
 Final link error said logb wasn't defined. Looked in rand.c, the code there looked funny,
 so I did this instead:
-
-// commented out by TJH (how many people do you know that work on a cray?)
-
-//#ifdef cray
-//double logb(double x) {
-//  if (x<=0) return -1e2460;
-//  return log(x)/log(2);
-//}
-//#endif
 
 double logb(double x)
 {
