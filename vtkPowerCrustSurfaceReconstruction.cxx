@@ -16,6 +16,11 @@
 
 =========================================================================*/
 
+#if defined(_MSC_VER)
+# pragma warning (push)
+# pragma warning (disable: 4701) /* potentially uninitialized local variable */
+# pragma warning (disable: 4703) /* potentially uninitialized local pointer variable */
+#endif
 #include "vtkPowerCrustSurfaceReconstruction.h"
 #include "vtkPointData.h"
 #include "vtkFloatArray.h"
@@ -11068,8 +11073,6 @@ REAL insphere(REAL *pa,REAL *pb,REAL *pc,REAL *pd,REAL *pe)
 
 //#include "hull.h"   TJH: this file is now above
 
-extern double erand48 (unsigned short X[3]);
-
 unsigned short X[3];
 
 double double_rand(void) {return erand48(X);}
@@ -11492,3 +11495,6 @@ To-do list:
 - include simplify and orient to make good-looking output
 
 =============================================================================================*/
+#if defined(_MSC_VER)
+# pragma warning (pop)
+#endif
