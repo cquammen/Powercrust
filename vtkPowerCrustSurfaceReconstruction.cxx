@@ -5235,7 +5235,7 @@ void *visit_triang(simplex *root, visit_func *visit)
 {return visit_triang_gen(root, visit, truet);}
 
 
-int hullt(simplex *, int, void *) {return i>-1;}
+int hullt(simplex *, int i, void *) {return i>-1;}
 
 void *facet_test(simplex *s, void *) {return (!s->peak.vert) ? s : NULL;}
 
