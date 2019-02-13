@@ -11182,6 +11182,10 @@ int vtkPowerCrustSurfaceReconstruction::RequestData(vtkInformation *vtkNotUsed(r
 }
 
 
+#if defined(_MSC_VER)
+# pragma warning (pop)
+#endif
+
 void vtkPowerCrustSurfaceReconstruction::ExecuteInformation()
 {
   if (this->GetInput() == NULL)
@@ -11236,9 +11240,6 @@ void pcInit ()
 
     num_vtxs=0;
     num_faces=0;
-#if defined(_MSC_VER)
-# pragma warning (pop)
-#endif
 }
 
 /*=================TimsFun.txt===============================================================
