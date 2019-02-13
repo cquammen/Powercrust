@@ -36,6 +36,8 @@ vtkStandardNewMacro(vtkPowerCrustSurfaceReconstruction);
 
 vtkPowerCrustSurfaceReconstruction::vtkPowerCrustSurfaceReconstruction()
 {
+  vtkMath::RandomSeed(8775070);
+
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
 
@@ -11070,12 +11072,13 @@ REAL insphere(REAL *pa,REAL *pb,REAL *pc,REAL *pd,REAL *pe)
 #include <math.h>
 #include <stdio.h>
 #include <time.h>
+#include <vtkMath.h>
 
 //#include "hull.h"   TJH: this file is now above
 
 unsigned short X[3];
 
-double double_rand(void) {return erand48(X);}
+double double_rand(void) {return vtkMath::Random(0.0, 1.0);}
 
 void init_rand(long) {
 //  X[1]=(seed==0) ? time(0) : seed;	//EPRO - commented
@@ -11233,6 +11236,9 @@ void pcInit ()
 
     num_vtxs=0;
     num_faces=0;
+#if defined(_MSC_VER)
+# pragma warning (pop)
+#endif
 }
 
 /*=================TimsFun.txt===============================================================
@@ -11495,6 +11501,3 @@ To-do list:
 - include simplify and orient to make good-looking output
 
 =============================================================================================*/
-#if defined(_MSC_VER)
-# pragma warning (pop)
-#endif
