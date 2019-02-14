@@ -17,10 +17,14 @@
 =========================================================================*/
 
 #if defined(_MSC_VER)
-# pragma warning (push)
-# pragma warning (disable: 4701) /* potentially uninitialized local variable */
-# pragma warning (disable: 4703) /* potentially uninitialized local pointer variable */
-#endif
+// potentially uninitialized local variable
+# pragma warning (disable: 4701)
+
+// potentially uninitialized local pointer variable
+# pragma warning (disable: 4703)
+
+#endif // _MSC_VER
+
 #include "vtkPowerCrustSurfaceReconstruction.h"
 #include "vtkPointData.h"
 #include "vtkFloatArray.h"
@@ -11180,11 +11184,6 @@ int vtkPowerCrustSurfaceReconstruction::RequestData(vtkInformation *vtkNotUsed(r
 
   return 1;
 }
-
-
-#if defined(_MSC_VER)
-# pragma warning (pop)
-#endif
 
 void vtkPowerCrustSurfaceReconstruction::ExecuteInformation()
 {
