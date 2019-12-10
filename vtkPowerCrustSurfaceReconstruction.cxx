@@ -1397,7 +1397,7 @@ void adapted_main()
     int numbadpoles=0;
     // TJH double x,y,z,r,d;
     // TJH int l;
-    out_func *mof;
+    out_func *mof = nullptr;
     visit_func *pr;
 
 
@@ -2578,7 +2578,7 @@ void *compute_2d_power_vv(simplex *s, void *p) {
   static out_func *out_func_here;
   point v[MAXDIM];
   int j,k,inf=0, index;
-  double cc[2], cond, ta[3][3];
+  double cc[2], cond = 0, ta[3][3];
 
   if (p) {out_func_here = (out_func*)p; if (!s) return NULL;}
 
@@ -2732,7 +2732,7 @@ void *compute_3d_power_edges(simplex *s, void *p) {
 
   static out_func *out_func_here;
   point v[MAXDIM];
-  int j, k, inf=0, numedges, ns, l, nedge0, nedge1, nremv, nnextv, l1, l2, nk;
+  int j, k, inf=0, numedges, ns, l, nedge0 = 0, nedge1 = 0, nremv = 0, nnextv = 0, l1, l2, nk;
   site edge0, edge1, nextv, remv, prevv;
     double ta[4][4], r1, r2, d, e;
   simplex *prevs, *nexts;

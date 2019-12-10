@@ -96,7 +96,7 @@ public:
 
 protected:
   vtkPowerCrustSurfaceReconstruction();
-  ~vtkPowerCrustSurfaceReconstruction();
+  ~vtkPowerCrustSurfaceReconstruction() override;
 
   // Description:
   // the main function that does the work
@@ -119,5 +119,3 @@ private:
 };
 
 #endif
-
-
